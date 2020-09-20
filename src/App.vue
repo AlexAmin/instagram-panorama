@@ -30,7 +30,7 @@
 
 <script>
   import {defineComponent, ref} from "@vue/composition-api";
-  import { Carousel, Slide } from 'vue-carousel';
+  import {Carousel, Slide} from 'vue-carousel';
 
   export default defineComponent({
     name: 'App',
@@ -47,6 +47,7 @@
         const files = e.target.files;
         if (files.length === 0) return;
         file.value = files[0];
+        factor.value = findFactor(file.width, file.height).factor
         render();
       }
 
@@ -72,7 +73,6 @@
         image.value.onload = async function () {
           const sourceWidth = image.value.width;
           const sourceHeight = image.value.height;
-          factor.value = findFactor(sourceWidth, sourceHeight).factor
           uiFactor.value = 12 / factor.value
           //const factor = Math.abs(sourceWidth / targetWidth);
           const targetWidth = sourceWidth / factor.value;
@@ -117,17 +117,17 @@
         return URL.createObjectURL(image)
       }
       function nextImageAvailable(){
-        return previewIndex.value >= previews.value.length-1
-      }
-      function previousImageAvailable(){
         return previewIndex.value <= 0;
       }
+      function previousImageAvailable(){
+        return previewIndex.value >= previews.value.length - 1;
+      }
       function nextImage(){
-        if(nextImageAvailable()) return
+        if(!nextImageAvailable()) return
         previewIndex.value++;
       }
       function previousImage(){
-        if(previousImageAvailable()) return
+        if(!previousImageAvailable()) return
         previewIndex.value--;
       }
       return {
@@ -150,6 +150,11 @@
 </script>
 
 <style lang="scss">
+  html, body{
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+  }
   #app {
     overflow: hidden;
     font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -160,16 +165,6 @@
     margin-top: 60px;
   }
 
-  .carousel{
-    background-color: deepskyblue;
-    width: 300px;
-    height: 400px;
-    display: block;
-    margin: 0 auto;
-  }
-  .carousel img{
-    width: 100%;
-  }
   .carousel-buttons {
     display: table-cell;
     vertical-align: middle;
@@ -193,14 +188,22 @@
     margin-left: 5vh;
     vertical-align: middle;
   }
-  .carousel-container{
+  .carousel-container {
     display: table;
-    height: 80vw;
-    width: 80vw;
+    height: 50vh;
+    width: 50vh;
+    background-color: blue;
     background-position: center center;
     background-repeat: no-repeat;
     background-size: contain;
     margin: 0 auto;
+  }
+  @media only screen and (max-height: 800px){
+    .carousel-container {
+      height: 70vh;
+      width: 70vh;
+      background-color: red;
+    }
   }
 
 </style>
