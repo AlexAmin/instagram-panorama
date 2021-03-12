@@ -1,7 +1,12 @@
 <template>
-  <div id="app">
+  <b-container fluid="true">
+    <b-navbar sticky type="light" toggleable="md">
+      <b-navbar-brand>
+        Insta Panorama
+      </b-navbar-brand>
+    </b-navbar>
     <router-view />
-  </div>
+  </b-container>
 </template>
 
 <script lang="ts">

@@ -1,8 +1,9 @@
 <template>
-  <div class="home">
-    <p>Hello</p>
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
-  </div>
+  <b-row>
+    <b-col sm="12">
+      <HelloWorld />
+    </b-col>
+  </b-row>
 </template>
 
 <script lang="ts">

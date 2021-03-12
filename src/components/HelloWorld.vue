@@ -1,31 +1,28 @@
 <template>
-  <b-container id="app" fluid="true">
-    <b-row>
-      <b-col sm="6">
-        <input type="range" min="2" max="10" v-model="factor" @change="render"/> <span>{{factor}} </span>
-        <input ref="directoryInput" type="file" accept="image/*" @change="fileSelected">
-        <button @click="download">Download</button>
-      </b-col>
-    </b-row>
-    <b-row>
-      <b-col sm="12">
-        <div
-            v-if="previews.length > 0"
-            class="carousel-container"
-            :style="`background-image:url(${loadImage(previews[previewIndex])};`">
-          <div class="carousel-buttons">
+  <b-row style="background-color: red">
+    <b-col sm="6">
+      <input type="range" min="2" max="10" v-model="factor" @change="render"/> <span>{{factor}} </span>
+      <input ref="directoryInput" type="file" accept="image/*" @change="fileSelected">
+      <button @click="download">Download</button>
+    </b-col>
+    <p v-if="processing">loading</p>
+    <b-col sm="12">
+      <div
+          v-if="previews.length > 0"
+          class="carousel-container"
+          :style="`background-image:url(${loadImage(previews[previewIndex])};`">
+        <div class="carousel-buttons">
             <span
                 v-if="previousImageAvailable"
                 @click="previousImage" class="carousel-button carousel-button-left">&lt;</span>
-            <span
-                v-if="nextImageAvailable"
-                @click="nextImage" class="carousel-button carousel-button-right">&gt;</span>
-          </div>
+          <span
+              v-if="nextImageAvailable"
+              @click="nextImage" class="carousel-button carousel-button-right">&gt;</span>
         </div>
-      </b-col>
-    </b-row>
+      </div>
+    </b-col>
     <img style="display: none;" ref="image" alt="hidden preview" src="#"/>
-  </b-container>
+  </b-row>
 </template>
 
 <script>
@@ -36,6 +33,7 @@ export default defineComponent({
   name: 'App',
   components: {Carousel, Slide},
   setup(){
+    const processing = ref(false);
     const previews = ref([]);
     const uiFactor = ref(3)
     const image = ref(null);
@@ -90,12 +88,14 @@ export default defineComponent({
         const renderedFiles = await Promise.all(tasks);
         console.log(renderedFiles)
         previews.value = renderedFiles;
+        processing.value = false;
       }
       image.value.src = loadImage(file.value)
     }
     async function fileSelected(e) {
       const files = e.target.files;
       if (files.length === 0) return;
+      processing.value = true;
       file.value = files[0];
       factor.value = findFactor(file.width, file.height).factor
       render();
@@ -130,6 +130,7 @@ export default defineComponent({
       previewIndex.value--;
     }
     return {
+      processing,
       image,
       factor,
       previews,
