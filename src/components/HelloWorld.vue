@@ -1,12 +1,19 @@
 <template>
-  <b-row style="background-color: red">
-    <b-col sm="6">
+  <b-row>
+    <b-col sm="12">
       <input type="range" min="2" max="10" v-model="factor" @change="render"/> <span>{{factor}} </span>
       <input ref="directoryInput" type="file" accept="image/*" @change="fileSelected">
       <button @click="download">Download</button>
     </b-col>
-    <p v-if="processing">loading</p>
-    <b-col sm="12">
+    <b-col cols="12" sm="6">
+      <div
+          class="carousel-container"
+          :style="`background-image:url(${inputImage};`"/>
+    </b-col>
+    <b-col cols="12" sm="6" v-if="processing">
+      <p>loading</p>
+    </b-col>
+    <b-col v-else sm="6" cols="12">
       <div
           v-if="previews.length > 0"
           class="carousel-container"
@@ -21,6 +28,7 @@
         </div>
       </div>
     </b-col>
+    <!-- Used for image editing -->
     <img style="display: none;" ref="image" alt="hidden preview" src="#"/>
   </b-row>
 </template>
@@ -37,15 +45,15 @@ export default defineComponent({
     const previews = ref([]);
     const uiFactor = ref(3)
     const image = ref(null);
+    const inputImage = ref("");
     const previewIndex = ref(0);
     const factor = ref(3);
-    const file = ref(null);
+    const inputFile = ref(null);
 
     function findFactor(sourceWidth, sourceHeight){
       //Find a factor that will help us get closest to a 1:1 aspect ratio
       const factor = {factor: null, value: null}
       for(let i = 2; i<10; i++){
-        console.log("loop", i)
         const value = (sourceWidth/i) / sourceHeight;
         if(!factor.factor || !factor.value || (Math.abs(value) > factor.value)){
           factor.factor = i;
@@ -59,10 +67,11 @@ export default defineComponent({
       return factor;
     }
     function loadImage(image){
+      if(!image) return "";
       return URL.createObjectURL(image)
     }
     function render(){
-      console.log("Load file", file)
+      console.log("Load file", inputFile)
       image.value.onload = async function() {
         const sourceWidth = image.value.width;
         const sourceHeight = image.value.height;
@@ -81,7 +90,7 @@ export default defineComponent({
           console.log("Draw y offset", targetWidth * i)
           tasks.push(new Promise((resolve) => {
             canvas.toBlob(function(blob) {
-              resolve(blob.slice(0, blob.size, file.value.type))
+              resolve(blob.slice(0, blob.size, inputFile.value.type))
             })
           }))
         }
@@ -90,14 +99,15 @@ export default defineComponent({
         previews.value = renderedFiles;
         processing.value = false;
       }
-      image.value.src = loadImage(file.value)
+      image.value.src = loadImage(inputFile.value)
     }
     async function fileSelected(e) {
       const files = e.target.files;
       if (files.length === 0) return;
       processing.value = true;
-      file.value = files[0];
-      factor.value = findFactor(file.width, file.height).factor
+      inputFile.value = files[0];
+      inputImage.value = loadImage(inputFile.value);
+      factor.value = findFactor(inputFile.width, inputFile.height).factor
       render();
     }
     function download(){
@@ -105,7 +115,7 @@ export default defineComponent({
         setTimeout(()=>{
           const element = document.createElement('a');
           element.setAttribute('href', loadImage(renderedFile));
-          element.setAttribute('download', "pano-"+"-"+index+file.value.name);
+          element.setAttribute('download', "pano-"+"-"+index+inputFile.value.name);
           element.style.display = 'none';
           document.body.appendChild(element);
           element.click();
@@ -131,6 +141,8 @@ export default defineComponent({
     }
     return {
       processing,
+      inputFile,
+      inputImage,
       image,
       factor,
       previews,
@@ -189,21 +201,12 @@ html, body{
   vertical-align: middle;
 }
 .carousel-container {
-  display: table;
   height: 50vh;
-  width: 50vh;
-  background-color: blue;
+  width: 100%;
   background-position: center center;
   background-repeat: no-repeat;
   background-size: contain;
   margin: 0 auto;
-}
-@media only screen and (max-height: 800px){
-  .carousel-container {
-    height: 70vh;
-    width: 70vh;
-    background-color: red;
-  }
 }
 
 </style>
