@@ -38,7 +38,7 @@ export class ImageSlicing{
 
     private async imageLoaded(){
         if(this.image === null) throw new Error("Image not initialized");
-        console.log("image loaded");
+        //console.log("image loaded");
         //Fetch height and width
         const sourceWidth = this.image.width;
         const sourceHeight = this.image.height;
@@ -76,14 +76,14 @@ export class ImageSlicing{
                 sourceHeight
             )
 
-            console.log("Generate Blobs");
+            //console.log("Generate Blobs");
             //Actually generating the image requires a callback
             tasks.push(new Promise((resolve) => {
                 canvas.toBlob((blob: Blob | null): void => {
                     if(blob === null) throw new Error("Blob failed to load")
                     //Inject a content type into the blob
                     //This is needed for browser to allow downloading them
-                    console.log("Blob Ready");
+                    //console.log("Blob Ready");
                     const blobWithContentType = blob.slice(0, blob.size, this.file.type)
                     resolve(blobWithContentType)
                 })
@@ -94,7 +94,7 @@ export class ImageSlicing{
         //Wait for the blobs to generate and return them via the promise setup in render()
         const blobs: Blob[] = (await Promise.all(tasks)) as Blob[];
         if(this.resolve === null) throw new Error("Resolve promise not initialized");
-        console.log("Resolve", blobs.length)
+        //console.log("Resolve", blobs.length)
         this.resolve(blobs);
     }
 }

@@ -1,12 +1,15 @@
 <template>
-  <b-container fluid="true">
-    <b-navbar sticky type="light" toggleable="md">
-      <b-navbar-brand>
-        Insta Panorama
-      </b-navbar-brand>
+  <div>
+    <b-navbar toggleable="lg" type="dark" variant="primary">
+      <b-container>
+        <b-navbar-brand href="#">Insta Panorama</b-navbar-brand>
+      </b-container>
     </b-navbar>
-    <router-view />
-  </b-container>
+    <b-container>
+      <router-view />
+    </b-container>
+  </div>
+
 </template>
 
 <script lang="ts">

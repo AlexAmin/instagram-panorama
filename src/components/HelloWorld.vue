@@ -1,9 +1,11 @@
 <template>
   <b-row>
-    <b-col sm="12">
-      <input ref="directoryInput" type="file" accept="image/*" @change="fileSelected">
-      <button @click="download">Download</button>
-    </b-col>
+    <b-jumbotron>
+      <b-col sm="12">
+        <input ref="directoryInput" type="file" accept="image/*" @change="fileSelected">
+        <button @click="download">Download</button>
+      </b-col>
+    </b-jumbotron>
     <b-col cols="12" sm="6">
       <div
           class="carousel-container"
@@ -48,27 +50,27 @@ export default defineComponent({
     const previewIndex = ref(0);
     const inputFile: Ref <File | null> = ref(null);
 
-    function loadImage(image: File | null){
-      if(!image) return "";
-      return URL.createObjectURL(image)
-    }
-
-    async function fileSelected(e: any) {
+    async function fileSelected(e) {
       const files = e.target.files;
-      if (files.length === 0) return console.log("No files selected")
+      if (files.length === 0) return
       processing.value = true;
       inputFile.value = files[0];
-      inputImage.value = loadImage(inputFile.value);
+      inputImage.value = URL.createObjectURL(inputFile.value);
+      if(inputFile.value === null) return
       const blobs = await new ImageSlicing(inputFile.value).render();
       processing.value = false;
       previews.value = blobs;
     }
 
+    function loadImage(file: File){
+      return URL.createObjectURL(file)
+    }
     function download(){
       previews.value.forEach((renderedFile, index)=>{
         setTimeout(()=>{
+          if(inputFile.value === null) return
           const element = document.createElement('a');
-          element.setAttribute('href', loadImage(renderedFile));
+          element.setAttribute('href', URL.createObjectURL(renderedFile));
           element.setAttribute('download', "pano-"+"-"+index+inputFile.value.name);
           element.style.display = 'none';
           document.body.appendChild(element);
@@ -82,17 +84,14 @@ export default defineComponent({
     function nextImageAvailable(){
       const max = previews.value.length;
       const newIndex = previewIndex.value+1;
-      console.log(newIndex, "<=",max)
       return newIndex < max;
     }
     function previousImageAvailable(){
       const min = 0;
       const newIndex = previewIndex.value-1;
-      console.log(newIndex, ">=",min);
       return newIndex >= min;
     }
     function nextImage(){
-      console.log("next", previewIndex.value)
       if(!nextImageAvailable()) return;
       previewIndex.value++;
     }
