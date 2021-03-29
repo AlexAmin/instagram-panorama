@@ -35,89 +35,22 @@
 
 <script lang="ts">
 import {defineComponent, Ref, ref} from "@vue/composition-api";
-import {Factor} from "@/Factor";
+import {ImageSlicing} from "@/ImageSlicing";
 
 export default defineComponent({
   name: 'App',
   components: {},
   setup(){
     const processing = ref(false);
-    const previews = ref([]);
+    const previews: Ref<Blob[]> = ref([]);
     const uiFactor = ref(3)
     const inputImage = ref("");
     const previewIndex = ref(0);
     const inputFile: Ref <File | null> = ref(null);
-    const calculatedImageQuotient = ref(new Factor(-1))
 
-    function findFactor(sourceWidth: number, sourceHeight: number): Factor{
-      //Find out into how many images the image should be split to get a bunch of squares
-      /*
-      4032x3024
-      3024 / 4032 = 0.75 -> Image is not square
-      If the quotient is <1 -> Two squares aren't possible
-      Else is the quotient even? -> Quotient = Number of images
-      else Quotient = 1.75 -> 2 pictures
-       */
-      //Is the image already square?
-      if(sourceWidth / sourceHeight === 1) return new Factor(1)
-      console.log(sourceWidth/sourceHeight, Math.ceil(sourceWidth/sourceHeight), Math.abs(sourceWidth/sourceHeight))
-      return new Factor(sourceWidth/sourceHeight)
-    }
     function loadImage(image: File | null){
       if(!image) return "";
       return URL.createObjectURL(image)
-    }
-
-    function render(file: File, objectUrl: string) {
-      if(inputFile.value === null) return
-      const fileReader = new FileReader();
-      //Load file
-      fileReader.onload = async function() {
-        console.log("File loaded")
-        const image = new Image();
-        image.src = fileReader.result as string;
-        //Load file as image
-        image.onload = async function(){
-          //Fetch height and width
-          const sourceWidth = image.width;
-          const sourceHeight = image.height;
-          console.log(sourceWidth, sourceHeight, "Image Loaded")
-          const factor = findFactor(sourceWidth, sourceHeight)
-          const tasks = [];
-          /*
-          Quotient = 3.4
-          Abs Quotient = 3
-          5652 / 3 = 1884
-          i = 1 = 0 to 1884
-          i = 2 = 1884 to 3768
-          i = 3 = 3768 to 5652
-             */
-          const sliceWidth = (sourceWidth / Math.abs(factor.factor))
-          for (let i = 0; i < factor.factor; i++) {
-            const canvas = document.createElement("canvas");
-            const canvasContext = canvas.getContext("2d");
-            if(canvasContext === null) throw new Error("Failed to load canvas")
-            canvas.height = sourceHeight;
-            canvas.width = sliceWidth;
-
-            const sourceMarginLeft = sliceWidth * i
-            console.log(sourceMarginLeft, sliceWidth)
-            canvasContext.drawImage(image, sourceMarginLeft, 0, sliceWidth, sourceHeight, 0, 0, sliceWidth, sourceHeight)
-            //canvasContext.drawImage(image, 0, 0, sourceWidth, sourceHeight, -(sliceWidth), 0, sourceWidth, sourceHeight)
-            tasks.push(new Promise((resolve) => {
-              canvas.toBlob(function(blob) {
-                if(blob === null) throw new Error("Canvas Blob is null");
-                resolve(blob.slice(0, blob.size, inputFile.value.type))
-              })
-            }))
-          }
-          const renderedFiles = await Promise.all(tasks);
-          console.log(renderedFiles)
-          previews.value = renderedFiles;
-          processing.value = false;
-        }
-      }
-      fileReader.readAsDataURL(file)
     }
 
     async function fileSelected(e: any) {
@@ -126,8 +59,11 @@ export default defineComponent({
       processing.value = true;
       inputFile.value = files[0];
       inputImage.value = loadImage(inputFile.value);
-      render(inputFile.value, inputImage.value);
+      const blobs = await new ImageSlicing(inputFile.value).render();
+      processing.value = false;
+      previews.value = blobs;
     }
+
     function download(){
       previews.value.forEach((renderedFile, index)=>{
         setTimeout(()=>{
@@ -172,7 +108,6 @@ export default defineComponent({
       download,
       fileSelected,
       loadImage,
-      render,
       previewIndex,
       nextImage,
       previousImage,
