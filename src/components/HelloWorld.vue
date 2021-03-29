@@ -1,34 +1,58 @@
 <template>
   <b-row>
-    <b-jumbotron>
-      <b-col sm="12">
-        <input ref="directoryInput" type="file" accept="image/*" @change="fileSelected">
-        <button @click="download">Download</button>
-      </b-col>
-    </b-jumbotron>
-    <b-col cols="12" sm="6">
-      <div
-          class="carousel-container"
-          :style="`background-image:url(${inputImage};`"/>
+    <b-col sm="12">
+      <b-jumbotron class="upload-jumbotron">
+        <b-row>
+          <b-col sm="12"><h1>Use your panoramas on Insta</h1></b-col>
+          <b-col sm="12">
+            <b-form-group>
+              <b-form-file id="file-large" size="lg"  accept="image/*" @change="fileSelected"/>
+            </b-form-group>
+            <button @click="download">Download</button>
+          </b-col>
+        </b-row>
+      </b-jumbotron>
+    </b-col>
+    <b-col sm="6">
+      <b-col sm="12">Original</b-col>
+      <b-col sm="12"
+             class="carousel-container"
+             :style="`background-image:url(${inputImage};`"/>
+    </b-col>
+    <b-col sm="6">
+      <b-row>
+        <b-col sm="12">Panorama</b-col>
+        <b-col sm="12"
+               v-if="previews.length > 0"
+               class="carousel-container"
+               :style="`background-image:url(${loadImage(previews[previewIndex])};`">
+          <div class="carousel-buttons">
+            <span
+                v-if="nextImageAvailable"
+                @click="previousImage" class="carousel-button carousel-button-left">&lt;</span>
+            <span
+                v-if="nextImageAvailable"
+                @click="nextImage" class="carousel-button carousel-button-right">&gt;</span>
+          </div>
+        </b-col>
+        <b-col sm="12">
+          <ul>
+          <li
+              v-for="i in previews.length"
+              :key="i+'-preview-dot'"
+              style="display: inline-block; height: 8px; width: 8px; margin-left: 4px; border-radius: 16px; background-color: grey;"
+              v-bind:class="{dotActive: i === previewIndex+1}"
+          />
+          </ul>
+        </b-col>
+      </b-row>
     </b-col>
     <b-col cols="12" sm="6" v-if="processing">
       <p>loading</p>
     </b-col>
     <b-col v-else sm="6" cols="12">
       <p>{{previewIndex}}</p>
-      <div
-          v-if="previews.length > 0"
-          class="carousel-container"
-          :style="`background-image:url(${loadImage(previews[previewIndex])};`">
-        <div class="carousel-buttons">
-            <span
-                v-if="nextImageAvailable"
-                @click="previousImage" class="carousel-button carousel-button-left">&lt;</span>
-          <span
-              v-if="nextImageAvailable"
-              @click="nextImage" class="carousel-button carousel-button-right">&gt;</span>
-        </div>
-      </div>
+
     </b-col>
     <!-- Used for image editing -->
     <img style="display: none;" ref="imageFile" alt="hidden preview" src="#"/>
@@ -165,5 +189,10 @@ html, body{
   background-size: contain;
   margin: 0 auto;
 }
-
+.upload-jumbotron{
+  margin-top: 5vh;
+}
+.dotActive{
+  background-color: blue !important;
+}
 </style>
