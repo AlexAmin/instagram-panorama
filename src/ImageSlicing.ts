@@ -16,6 +16,7 @@ export class ImageSlicing{
         this.fileReader = new FileReader();
         // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
         // @ts-ignore
+        //Boxing to fix context of this
         this.fileReader.onload = ()=>this.fileLoaded()
         this.fileReader.readAsDataURL(this.file)
 
@@ -29,6 +30,7 @@ export class ImageSlicing{
     private fileLoaded(){
         if(this.fileReader === null) throw new Error("FileReader is not initialized")
         this.image = new Image();
+        //Boxing to fix context of this
         this.image.onload = ()=>this.imageLoaded()
         //Load file as image
         this.image.src = this.fileReader.result as string;
@@ -92,7 +94,7 @@ export class ImageSlicing{
         //Wait for the blobs to generate and return them via the promise setup in render()
         const blobs: Blob[] = (await Promise.all(tasks)) as Blob[];
         if(this.resolve === null) throw new Error("Resolve promise not initialized");
-        console.log("REsolve", blobs.length)
+        console.log("Resolve", blobs.length)
         this.resolve(blobs);
     }
 }
