@@ -1,41 +1,12 @@
 <template>
   <b-row>
-    <b-col sm="12">
-      <b-jumbotron class="upload-jumbotron">
+    <slot v-if="inputFile && !processing">
+      <b-col cols="12"><button @click="reset">Reset</button></b-col>
+      <b-col cols="12">
         <b-row>
-          <b-col sm="12"><h1>Use your panoramas on Insta</h1></b-col>
-          <b-col sm="12"><p>
-            Ever wanted to use panoramas on Instagram but got frustrated trying to trim them down to fit?
-            <br/>
-            Select the panorama you would like to convert and we'll cut it down into a few square-sized photos that will work on Instagram
-            <br/>
-            And the best part? Your data never leaves your computer. Your privacy matters!
-          </p></b-col>
-          <b-col sm="12">
-            <b-form-group>
-              <b-form-file id="file-large" size="lg"  accept="image/*" @change="fileSelected"/>
-            </b-form-group>
-          </b-col>
-        </b-row>
-      </b-jumbotron>
-    </b-col>
-    <b-col sm="12" v-if="!inputFile">none</b-col>
-    <b-col sm="12" v-else-if="processing">
-      <p>Loading</p>
-    </b-col>
-    <slot v-else>
-      <b-col sm="6">
-        <b-col sm="12">Original</b-col>
-        <b-col sm="12"
-               class="carousel-container"
-               :style="`background-image:url(${inputImage};`"/>
-      </b-col>
-      <b-col sm="6">
-        <b-row>
-          <b-col sm="12">Panorama</b-col>
           <b-col sm="12"
                  v-if="previews.length > 0"
-                 class="carousel-container"
+                 class="carousel-container image-background"
                  :style="`background-image:url(${loadImage(previews[previewIndex])};`">
             <div class="carousel-buttons">
             <span
@@ -58,10 +29,33 @@
           </b-col>
         </b-row>
       </b-col>
-      <b-col sm="6" cols="12">
-        <p>{{previewIndex}}</p>
-      </b-col>
+      <b-col v-if="inputFile" cols="12"
+             class="input-file-preview image-background"
+             :style="`background-image:url(${inputImage};`"/>
     </slot>
+    <b-col sm="12" v-else-if="inputFile && processing">
+      <p>Loading</p>
+    </b-col>
+    <b-col sm="12" v-else>
+      <b-jumbotron class="upload-jumbotron">
+        <b-row>
+          <b-col sm="12"><h1>Use your panoramas on Insta</h1></b-col>
+          <b-col sm="12"><p>
+            Ever wanted to use panoramas on Instagram but got frustrated trying to trim them down to fit?
+            <br/>
+            Select the panorama you would like to convert and we'll cut it down into a few square-sized photos that will work on Instagram
+            <br/>
+            And the best part? Your data never leaves your computer. Your privacy matters!
+          </p></b-col>
+          <b-col sm="12">
+            <b-form-group>
+              <b-form-file id="file-large" size="lg"  accept="image/*" @change="fileSelected"/>
+            </b-form-group>
+          </b-col>
+        </b-row>
+      </b-jumbotron>
+    </b-col>
+
     <!-- Used for image editing -->
     <img style="display: none;" ref="imageFile" alt="hidden preview" src="#"/>
   </b-row>
@@ -133,6 +127,10 @@ export default defineComponent({
       if(!previousImageAvailable()) return
       previewIndex.value--;
     }
+    function reset(){
+      inputFile.value = null;
+      processing.value = false;
+    }
     return {
       processing,
       inputFile,
@@ -146,7 +144,8 @@ export default defineComponent({
       previousImage,
       nextImageAvailable,
       previousImageAvailable,
-      uiFactor
+      uiFactor,
+      reset
     }
   }
 });
@@ -191,13 +190,19 @@ html, body{
   margin-left: 5vh;
   vertical-align: middle;
 }
-.carousel-container {
-  height: 50vh;
+.input-file-preview{
+  height: 20vh;
   width: 100%;
+}
+.image-background {
   background-position: center center;
   background-repeat: no-repeat;
   background-size: contain;
   margin: 0 auto;
+}
+.carousel-container {
+  height: 50vh;
+  width: 100%;
 }
 .upload-jumbotron{
   margin-top: 5vh;

@@ -1,9 +1,5 @@
 <template>
-  <b-row>
-    <b-col sm="12">
-      <HelloWorld />
-    </b-col>
-  </b-row>
+  <HelloWorld />
 </template>
 
 <script lang="ts">
