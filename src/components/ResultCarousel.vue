@@ -31,25 +31,25 @@
                 @click="nextImage" class="carousel-button carousel-button-right">&gt;</span>
           </div>
         </b-col>
-        <b-col sm="12">
-          <ul>
-            <li
-                v-for="i in previews.length"
-                :key="i+'-preview-dot'"
-                style="display: inline-block; height: 8px; width: 8px; margin-left: 4px; border-radius: 16px; background-color: grey;"
-                v-bind:class="{dotActive: i === previewIndex+1}"
-            />
-          </ul>
-        </b-col>
       </b-row>
     </b-col>
     <b-col cols="12">
       <b-row>
-        <b-col sm="2">
+        <b-col cols="1">
           <button @click="reset"><b-icon-trash/></button>
         </b-col>
-        <b-col sm="2">
+        <b-col cols="1" offset="1">
           <button @click="download"><b-icon-download/></button>
+        </b-col>
+        <b-col cols="5">
+          <ul>
+            <li
+                v-for="i in previews.length"
+                :key="i+'-preview-dot'"
+                class="preview-dot"
+                v-bind:class="{dotActive: i === previewIndex+1}"
+            />
+          </ul>
         </b-col>
       </b-row>
     </b-col>
@@ -195,5 +195,13 @@ html, body{
   border-radius: 90px;
   height: 50px;
   width: 50px;
+}
+.preview-dot{
+  display: inline-block;
+  height: 5px;
+  width: 5px;
+  margin-left: 4px;
+  border-radius: 16px;
+  background-color: grey;
 }
 </style>
