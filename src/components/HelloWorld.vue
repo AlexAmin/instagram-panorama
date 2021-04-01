@@ -1,38 +1,11 @@
 <template>
   <b-row>
-    <slot v-if="inputFile && !processing">
-      <b-col cols="12"><button @click="reset">Reset</button></b-col>
-      <b-col cols="12">
-        <b-row>
-          <b-col sm="12"
-                 v-if="previews.length > 0"
-                 class="carousel-container image-background"
-                 :style="`background-image:url(${loadImage(previews[previewIndex])};`">
-            <div class="carousel-buttons">
-            <span
-                v-if="nextImageAvailable"
-                @click="previousImage" class="carousel-button carousel-button-left">&lt;</span>
-              <span
-                  v-if="nextImageAvailable"
-                  @click="nextImage" class="carousel-button carousel-button-right">&gt;</span>
-            </div>
-          </b-col>
-          <b-col sm="12">
-            <ul>
-              <li
-                  v-for="i in previews.length"
-                  :key="i+'-preview-dot'"
-                  style="display: inline-block; height: 8px; width: 8px; margin-left: 4px; border-radius: 16px; background-color: grey;"
-                  v-bind:class="{dotActive: i === previewIndex+1}"
-              />
-            </ul>
-          </b-col>
-        </b-row>
-      </b-col>
-      <b-col v-if="inputFile" cols="12"
-             class="input-file-preview image-background"
-             :style="`background-image:url(${inputImage};`"/>
-    </slot>
+    <ResultCarousel
+        v-if="inputFile && !processing"
+        @reset="reset"
+        :inputFile="inputFile"
+        :previews="previews"
+        />
     <b-col sm="12" v-else-if="inputFile && processing">
       <p>Loading</p>
     </b-col>
@@ -64,17 +37,19 @@
 <script lang="ts">
 import {defineComponent, Ref, ref} from "@vue/composition-api";
 import {ImageSlicing} from "@/ImageSlicing";
+import ResultCarousel from "@/components/ResultCarousel.vue";
 
 export default defineComponent({
   name: 'App',
-  components: {},
+  components: {
+    ResultCarousel
+  },
   setup(){
     const processing = ref(false);
     const previews: Ref<Blob[]> = ref([]);
     const uiFactor = ref(3)
-    const inputImage = ref("");
-    const previewIndex = ref(0);
-    const inputFile: Ref <File | null> = ref(null);
+    const inputImage = ref();
+    const inputFile: Ref <File | null> = ref();
 
     async function fileSelected(e) {
       const files = e.target.files;
@@ -87,46 +62,6 @@ export default defineComponent({
       processing.value = false;
       previews.value = blobs;
     }
-
-    function loadImage(file: File){
-      return URL.createObjectURL(file)
-    }
-    function download(){
-      previews.value.forEach((renderedFile, index)=>{
-        setTimeout(()=>{
-          if(inputFile.value === null) return
-          const element = document.createElement('a');
-          element.setAttribute('href', URL.createObjectURL(renderedFile));
-          element.setAttribute('download', "pano-"+"-"+index+inputFile.value.name);
-          element.style.display = 'none';
-          document.body.appendChild(element);
-          element.click();
-          setTimeout(()=>{
-            document.body.removeChild(element);
-          }, 10000)
-        }, 200 * index)
-
-      })
-    }
-
-    function nextImageAvailable(){
-      const max = previews.value.length;
-      const newIndex = previewIndex.value+1;
-      return newIndex < max;
-    }
-    function previousImageAvailable(){
-      const min = 0;
-      const newIndex = previewIndex.value-1;
-      return newIndex >= min;
-    }
-    function nextImage(){
-      if(!nextImageAvailable()) return;
-      previewIndex.value++;
-    }
-    function previousImage(){
-      if(!previousImageAvailable()) return
-      previewIndex.value--;
-    }
     function reset(){
       inputFile.value = null;
       processing.value = false;
@@ -136,14 +71,7 @@ export default defineComponent({
       inputFile,
       inputImage,
       previews,
-      download,
       fileSelected,
-      loadImage,
-      previewIndex,
-      nextImage,
-      previousImage,
-      nextImageAvailable,
-      previousImageAvailable,
       uiFactor,
       reset
     }
@@ -209,5 +137,11 @@ html, body{
 }
 .dotActive{
   background-color: blue !important;
+}
+.profile-picture{
+  background-color: grey;
+  border-radius: 90px;
+  height: 50px;
+  width: 50px;
 }
 </style>
