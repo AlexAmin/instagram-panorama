@@ -41,6 +41,9 @@
         <b-col cols="1" offset="1">
           <button @click="download"><b-icon-download/></button>
         </b-col>
+        <b-col cols="1" v-for="(file, index) in files" v-bind:key="'file-'+index">
+          <a :href="file.href" :download="file.download">File {{index}}</a>
+        </b-col>
         <b-col cols="5">
           <ul>
             <li
@@ -73,16 +76,18 @@ export default defineComponent({
   setup(props, {emit}){
     const inputImage = ref()
     const previewIndex = ref(0);
+    const files = ref([])
+
     function reset(){
       emit("reset")
     }
     function download(){
-      props.previews.forEach((renderedFile, index)=>{
+      files.value.forEach((value, index)=>{
         setTimeout(()=>{
           if(props.inputFile === null) return
           const element = document.createElement('a');
-          element.setAttribute('href', URL.createObjectURL(renderedFile));
-          element.setAttribute('download', "pano-"+"-"+index+props.inputFile.name);
+          element.setAttribute('href', value.href);
+          element.setAttribute('download', value.download);
           element.style.display = 'none';
           document.body.appendChild(element);
           element.click();
@@ -116,9 +121,19 @@ export default defineComponent({
       previewIndex.value--;
     }
     inputImage.value = loadImage(props.inputFile)
+
+    files.value = [];
+    files.value = props.previews.map((renderedFile, index)=>{
+      return {
+        href: URL.createObjectURL(renderedFile),
+        download: "pano-" + "-" + index + props.inputFile.name
+      }
+    });
+
     return {
       nextImage,
       previousImage,
+      files,
       nextImageAvailable,
       previousImageAvailable,
       previewIndex,
