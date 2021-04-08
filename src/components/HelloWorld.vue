@@ -1,11 +1,12 @@
 <template>
-  <b-row>
-    <ResultCarousel
-        v-if="inputFile && !processing"
-        @reset="reset"
-        :inputFile="inputFile"
-        :previews="previews"
-        />
+  <b-row class="justify-content-center">
+    <b-col cols="12" sm="7" v-if="inputFile && !processing">
+      <ResultCarousel
+          @reset="reset"
+          :inputFile="inputFile"
+          :previews="previews"
+      />
+    </b-col>
     <b-col sm="12" v-else-if="inputFile && processing">
       <p>Loading</p>
     </b-col>
@@ -84,64 +85,5 @@ html, body{
   height: 100vh;
   width: 100vw;
   overflow: hidden;
-}
-#app {
-  overflow: hidden;
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-
-.carousel-buttons {
-  display: table-cell;
-  vertical-align: middle;
-}
-.carousel-button {
-  background-color: white;
-  height: 25px;
-  text-align: center;
-  width: 25px;
-  color: black;
-  font-weight: bold;
-  border-radius: 15px;
-  box-shadow: 1px 1px 0px gray;
-}
-.carousel-button-right {
-  float: right;
-  margin-right: 5vh;
-}
-.carousel-button-left {
-  float: left;
-  margin-left: 5vh;
-  vertical-align: middle;
-}
-.input-file-preview{
-  height: 20vh;
-  width: 100%;
-}
-.image-background {
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-size: contain;
-  margin: 0 auto;
-}
-.carousel-container {
-  height: 50vh;
-  width: 100%;
-}
-.upload-jumbotron{
-  margin-top: 5vh;
-}
-.dotActive{
-  background-color: blue !important;
-}
-.profile-picture{
-  background-color: grey;
-  border-radius: 90px;
-  height: 50px;
-  width: 50px;
 }
 </style>

@@ -1,65 +1,52 @@
 <template>
-  <b-row v-if="inputFile && previews">
-    <b-col cols="12">
-      <b-row>
-        <b-col cols="2">
-          <div class="profile-picture"/>
-        </b-col>
-        <b-col cols="6">
-          <b-row>
-            <b-col cols="12">
-              <span>Alex</span>
-            </b-col>
-            <b-col cols="12">
-              <span>At a place</span>
-            </b-col>
-          </b-row>
-        </b-col>
-      </b-row>
-    </b-col>
-    <b-col cols="12">
-      <b-row>
-        <b-col sm="12"
-               class="carousel-container image-background"
-               :style="`background-image:url(${loadImage(previews[previewIndex])};`">
-          <div class="carousel-buttons">
+  <div class="result-carousel-container">
+    <b-row v-if="inputFile && previews" class="result-card">
+      <b-col cols="12" class="title-row">
+        <b-row>
+          <b-col sm="1" cols="2">
+            <div class="profile-picture"/>
+          </b-col>
+          <b-col cols="6" class="my-auto">
+            <span class="title-text">insta-panorama</span>
+          </b-col>
+        </b-row>
+      </b-col>
+      <b-col cols="12" class="image-container">
+        <img :src="loadImage(previews[previewIndex])"
+             class="image-background"
+             alt="rendered image"/>
+        <div class="carousel-buttons">
             <span
                 v-if="nextImageAvailable"
-                @click="previousImage" class="carousel-button carousel-button-left">&lt;</span>
-            <span
-                v-if="nextImageAvailable"
-                @click="nextImage" class="carousel-button carousel-button-right">&gt;</span>
-          </div>
-        </b-col>
-      </b-row>
-    </b-col>
-    <b-col cols="12">
-      <b-row>
-        <b-col cols="1">
-          <button @click="reset"><b-icon-trash/></button>
-        </b-col>
-        <b-col cols="1" offset="1">
-          <button @click="download"><b-icon-download/></button>
-        </b-col>
-        <b-col cols="1" v-for="(file, index) in files" v-bind:key="'file-'+index">
-          <a :href="file.href" :download="file.download">File {{index}}</a>
-        </b-col>
-        <b-col cols="5">
-          <ul>
-            <li
+                @click="previousImage" class="carousel-button carousel-button-left">
+              <b-icon-chevron-left/>
+            </span>
+          <span
+              v-if="nextImageAvailable"
+              @click="nextImage" class="carousel-button carousel-button-right"><b-icon-chevron-right/></span>
+        </div>
+      </b-col>
+      <b-col cols="12">
+        <div class="action-container">
+          <b-btn variant="link" @click="reset" class="text-danger action-btn-reset"><b-icon-trash/></b-btn>
+          <div class="preview-dot-container justify-content-center">
+            <div
                 v-for="i in previews.length"
                 :key="i+'-preview-dot'"
                 class="preview-dot"
-                v-bind:class="{dotActive: i === previewIndex+1}"
-            />
-          </ul>
-        </b-col>
-      </b-row>
-    </b-col>
-    <b-col v-if="inputImage" cols="12"
-           class="input-file-preview image-background"
-           :style="`background-image:url(${inputImage};`"/>
-  </b-row>
+                v-bind:class="{dotActive: i === previewIndex+1}"/>
+          </div>
+          <b-btn variant="link" @click="download" class="text-body action-btn-download"><b-icon-download/></b-btn>
+        </div>
+      </b-col>
+      <b-col cols="1" v-for="(file, index) in files" v-bind:key="'file-'+index">
+        <a :href="file.href" :download="file.download">File {{index}}</a>
+      </b-col>
+      <b-col v-if="inputImage" cols="12"
+             class="input-file-preview image-background"
+             :style="`background-image:url(${inputImage};`"/>
+    </b-row>
+  </div>
 </template>
 
 <script lang="ts">
@@ -147,24 +134,37 @@ export default defineComponent({
 </script>
 
 <style>
-html, body{
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
+
+.result-carousel-container{
+  padding-left: 8px;
+  padding-right: 8px;
 }
-#app {
-  overflow: hidden;
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+.result-card{
+  border: 1px solid rgba(219,219,219);
+  border-radius: 3px;
+  margin-left: 8px;
+  margin-right: 8px;
+  margin-top: 16px;
+  padding: 0;
 }
 
 .carousel-buttons {
-  display: table-cell;
-  vertical-align: middle;
+  position: absolute;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
+.title-row{
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+.title-text{
+  font-weight: 600;
 }
 .carousel-button {
   background-color: white;
@@ -177,39 +177,56 @@ html, body{
   box-shadow: 1px 1px 0px gray;
 }
 .carousel-button-right {
-  float: right;
-  margin-right: 5vh;
+  margin-right: 12px;
 }
 .carousel-button-left {
-  float: left;
-  margin-left: 5vh;
-  vertical-align: middle;
+  margin-left: 12px;
 }
 .input-file-preview{
   height: 20vh;
   width: 100%;
 }
+.image-container.col-12{
+  padding: 0 !important;
+  margin: 0 !important;
+}
 .image-background {
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-size: contain;
-  margin: 0 auto;
+  width: 100%;
 }
 .carousel-container {
-  height: 50vh;
   width: 100%;
 }
 .upload-jumbotron{
   margin-top: 5vh;
 }
 .dotActive{
-  background-color: blue !important;
+  background-color: black !important;
 }
 .profile-picture{
   background-color: grey;
-  border-radius: 90px;
-  height: 50px;
-  width: 50px;
+  border-radius: 60px;
+  height: 42px;
+  width: 42px;
+}
+.action-container{
+  display: flex;
+  align-items: stretch;
+  flex-direction: row;
+}
+.action-container .action-btn-reset{
+
+}
+.action-container .action-btn-download{
+  margin-left: auto;
+}
+.preview-dot-container{
+  width: 100%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  display: flex
 }
 .preview-dot{
   display: inline-block;
@@ -218,5 +235,9 @@ html, body{
   margin-left: 4px;
   border-radius: 16px;
   background-color: grey;
+}
+.button-borderless{
+  outline: none;
+  background: none;
 }
 </style>
